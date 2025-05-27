@@ -1,14 +1,49 @@
 <?php
-require "../utils/dbconnexion.php";
-require "../utils/clean_inp.php";
-require "../models/Of.php";
+require_once "../utils/dbconnexion.php";
+require_once "../utils/clean_inp.php";
+require_once "../models/Of.php";
 class OfController
 {
+
+    public static function ValidOf(Of $of): bool
+    {
+        $OF = self::getOfByID($of->getOfId(), $of->getCmdId());
+        if ($OF == null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static function getOfByID($ofId, $cmdId)
+    {
+        $ofId = Clean_input($ofId);
+
+        $database = new Dbconnexion();
+        $conn = $database->getConnection();
+
+        $sql = "SELECT * FROM `OF` where of_id = :of_id AND commande_id = :cmdId";
+        $stm = $conn->prepare($sql);
+        $stm->bindParam(":of_id", $ofId);
+        $stm->bindParam(":cmdId", $cmdId);
+
+        $stm->execute();
+
+        $data = $stm->fetchAll(PDO::FETCH_ASSOC);
+
+
+        if (is_array($data)) {
+            return $data;
+        }
+        return null;
+
+    }
+
+
     public static function addOf(Of $of)
     {
         $database = new Dbconnexion();
         $conn = $database->getConnection();
-        $sql = "INSERT into OF values (:of_id, :qt , :of_ref, :variant, :cmd_id)";
+        $sql = "INSERT into `OF` values (:of_id, :qt , :of_ref, :variant, :cmd_id)";
 
         $stm = $conn->prepare($sql);
 
@@ -25,10 +60,9 @@ class OfController
         $stm->bindParam(":cmd_id", $cmd_id);
         try {
             $stm->execute();
-            return true;
+            return [true, ""];
         } catch (Exception $e) {
-            echo $e;
-            return false;
+            return [false, $e];
         }
     }
 
@@ -38,7 +72,7 @@ class OfController
         $database = new Dbconnexion();
         $conn = $database->getConnection();
 
-        $sql = "SELECT * from OF where commande_id = :cmd_id";
+        $sql = "SELECT * from `OF` where commande_id = :cmd_id";
 
         $stm = $conn->prepare($sql);
         $stm->bindParam(":cmd_id", $cmdId);

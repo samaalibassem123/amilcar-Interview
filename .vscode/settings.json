@@ -1,4 +1,9 @@
-{
+{ 
+    "key": "cmd+y",
+    "command": "editor.action.redo",
+    "when": "editorTextFocus",
     "github.copilot.editor.enableAutoCompletions": false,
-  "github.copilot.inlineSuggest.enable": false  
-}
+  "github.copilot.inlineSuggest.enable": false ,
+   
+} 
+ 

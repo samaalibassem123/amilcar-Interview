@@ -1,9 +1,9 @@
 <?php
 
-require "../utils/clean_inp.php";
+include_once "../utils/clean_inp.php";
 class Qtsize
 {
-    private $qt_id;
+
     private $commande;
     private $coupe;
     private $controle;
@@ -12,9 +12,9 @@ class Qtsize
     private $tissue_id;
 
     // Constructor
-    public function __construct($qt_id, $commande, $coupe, $controle, $ecart, $taille, $tissue_id)
+    public function __construct($commande, $coupe, $controle, $ecart, $taille, $tissue_id)
     {
-        $this->qt_id = Clean_input($qt_id);
+
         $this->commande = Clean_input($commande);
         $this->coupe = Clean_input($coupe);
         $this->controle = Clean_input($controle);
@@ -25,15 +25,6 @@ class Qtsize
 
     // Getters and Setters
 
-    public function getQtId()
-    {
-        return $this->qt_id;
-    }
-
-    public function setQtId($qt_id)
-    {
-        $this->qt_id = Clean_input($qt_id);
-    }
 
     public function getCommande()
     {

@@ -1,6 +1,6 @@
 <?php
-require "../utils/dbconnexion.php";
-require "../utils/clean_inp.php";
+
+include_once "../utils/clean_inp.php";
 
 
 class Tissues

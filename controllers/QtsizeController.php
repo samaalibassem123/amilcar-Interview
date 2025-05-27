@@ -1,7 +1,7 @@
 <?php
-require "../utils/dbconnexion.php";
-require "../utils/clean_inp.php";
-require "../models/Qtsize.php";
+require_once "../utils/dbconnexion.php";
+require_once "../utils/clean_inp.php";
+require_once "../models/Qtsize.php";
 class QtsizeController
 {
     public static function getAllQtsize($tiss_id)
@@ -25,9 +25,9 @@ class QtsizeController
         $database = new Dbconnexion();
         $conn = $database->getConnection();
 
-        $sql = "INSERT INTO quantity_size values (:qtid, :command, :coupe, :controle, :ecart, :taille, :tissueid)";
+        $sql = "INSERT INTO quantity_size (commande, coupe,controle,ecart,taille,tissue_id) values (:command, :coupe, :controle, :ecart, :taille, :tissueid)";
         $stm = $conn->prepare($sql);
-        $qtid = $qtsize->getQtId();
+
         $command = $qtsize->getCommande();
         $coupe = $qtsize->getCoupe();
         $controle = $qtsize->getControle();
@@ -35,7 +35,7 @@ class QtsizeController
         $taille = $qtsize->getTaille();
         $tissueid = $qtsize->getTissueId();
 
-        $stm->bindParam(":qtid", $qtid);
+
         $stm->bindParam(":command", $command);
         $stm->bindParam(":coupe", $coupe);
         $stm->bindParam(":controle", $controle);
@@ -44,10 +44,8 @@ class QtsizeController
         $stm->bindParam(":tissueid", $tissueid);
         try {
             $stm->execute();
-            return true;
         } catch (Exception $e) {
-            echo $e;
-            return false;
+            echo "<script>alert('" . $e . "')</script>";
         }
 
 
