@@ -13,7 +13,28 @@ class OfController
         }
         return false;
     }
+    public static function getOf($ofId)
+    {
+        $ofId = Clean_input($ofId);
 
+        $database = new Dbconnexion();
+        $conn = $database->getConnection();
+
+        $sql = "SELECT * FROM `OF` where of_id = :of_id";
+        $stm = $conn->prepare($sql);
+        $stm->bindParam(":of_id", $ofId);
+
+        $stm->execute();
+
+        $data = $stm->fetch(PDO::FETCH_ASSOC);
+
+
+        if (is_array($data)) {
+            return $data;
+        }
+        return null;
+
+    }
     public static function getOfByID($ofId, $cmdId)
     {
         $ofId = Clean_input($ofId);

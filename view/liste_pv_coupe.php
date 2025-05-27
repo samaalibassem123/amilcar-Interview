@@ -7,9 +7,67 @@
     <title>Document</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <?php
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    include_once "../models/Command.php";
+    include_once "../models/Of.php";
+    include_once "../models/Qtsize.php";
+    include_once "../models/Tissues.php";
+
+    include_once "../controllers/ComandController.php";
+    include_once "../controllers/OfController.php";
+    include_once "../controllers/QtsizeController.php";
+    include_once "../controllers/TissuesController.php";
+
+    //Get all the command
+    $commands = ComandController::getAllCommands();
+
+
+    //Filter Commands 
+    if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["search"])) {
+        $of_id = $_GET["ofid"];
+        $refcmd = $_GET["refcmd"];
+        //Filter By OF ID
+        if ($of_id) {
+            //first we need to find cmd ref of the ofid
+            $OF = OfController::getOf($of_id);
+            if ($OF != null) {
+                $cmd_id = $OF["commande_id"];
+
+                $commands = array_filter($commands, function ($cmd) use ($cmd_id) {
+                    return $cmd["comande_ref"] === $cmd_id;
+                });
+            } else {
+                $commands = array();
+
+            }
+        }
+        //Filter By Ref command
+        if ($refcmd) {
+            $commands = array_filter($commands, function ($cmd) use ($refcmd) {
+                return $cmd["comande_ref"] === $refcmd;
+            });
+        }
+        if (!$refcmd && !$of_id) {
+            $commands = array();
+        }
+    }
+    //reset button
+    if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["reset"])) {
+        $commands = ComandController::getAllCommands();
+
+    }
+
+
+    ?>
+
+
 </head>
 
-<body>
+<body class="flex flex-row items-center">
     <div class="wrapper">
         <nav class="sidebar" id="sidebar">
             <h4 class="text-white">SYSTÈME COUPE - AMILCAR TECHNOLOGIES</h4>
@@ -43,11 +101,106 @@
                 </div>
             </div>
         </nav>
+        <div class="content">
+            <form method="get">
+                <div>
+                    <label for="">OF id : </label>
+                    <input type="text" name="ofid" id="">
+                </div>
+                <div>
+                    <label for="">Référence commande : </label>
+                    <input type="text" name="refcmd" id="">
+                </div>
+                <button type="submit" name="search">Search</button>
+                <button type="submit" name="reset">Reset</button>
+            </form>
+            <?php
+            foreach ($commands as $cmd) {
+                //GET ofs
+                $ofs = OfController::getAllOfs($cmd["comande_ref"]);
+
+                ?>
+
+            <div class="commande">
+                <div>
+                    <img src="<?php echo $cmd["photo_url"]; ?>" alt="">
+                    <div>date de commande : <?php echo $cmd["date_env"]; ?></div>
+                    <div>ref de commande : <?php echo $cmd["comande_ref"]; ?> </div>
+                    <p>quanity: <?php echo $cmd["quantity"]; ?></p>
+                </div>
+                <hr>
+                <div class="section1">
+                    <!--OF-->
+                    <?php
+                        foreach ($ofs as $of) {
+                            //GET tisuue
+                            $tissue = TissuesController::getTissue($of["of_id"]);
+                            //GET Qt per size
+                            $qt_size = QtsizeController::getAllQtsize($tissue["tissu_ref"]);
+
+                            ?>
+                    <div>
+                        <p>OF id: <span style=" font-weight: normal;"><?php echo $of["of_id"]; ?></span></p>
+                        <p>OF ref: <span style=" font-weight: normal;"><?php echo $of["of_ref"]; ?></span></p>
+                        <p>OF quantity: <span style=" font-weight: normal;"><?php echo $of["quantity"]; ?></span></p>
+                        <p>OF variant: <span style=" font-weight: normal;"><?php echo $of["variant"]; ?></span></p>
+                        <!--TISSUES-->
+                        <hr>
+                        <div>
+                            <p>tissu_ref : <span style=" font-weight: normal;"><?php echo $tissue["tissu_ref"]; ?></p>
+                            <p>ref emp1 : <span style=" font-weight: normal;"><?php echo $tissue["ref_emp1"]; ?></p>
+                            <p>ref emp2 : <span style=" font-weight: normal;"><?php echo $tissue["ref_emp2"]; ?></p>
+                            <p>ref doublur: <span style=" font-weight: normal;"><?php echo $tissue["ref_doublur"]; ?>
+                            </p>
+                            <p>tissu recu: <span style=" font-weight: normal;"><?php echo $tissue["tissu_recu"]; ?></p>
+                            <p>tissu consom: <span style=" font-weight: normal;"><?php echo $tissue["tissu_consom"]; ?>
+                            </p>
+                            <p>reste tissu: <span style=" font-weight: normal;"><?php echo $tissue["reste_tissu"]; ?>
+                            </p>
+                            <p>Comment: <span style=" font-weight: normal;"><?php echo $tissue["comment"]; ?></p>
+                        </div>
+                        <?php
+                                foreach ($qt_size as $qs) {
+
+                                    ?>
+                        <hr>
+                        <!--Quantity per size-->
+                        <div>
+                            quantity per size:
+                            <p>Taille : <span style=" font-weight: normal;"><?php echo $qs["taille"]; ?></p>
+                            <p>commande : <span style=" font-weight: normal;"><?php echo $qs["commande"]; ?></p>
+                            <p>coupe : <span style=" font-weight: normal;"><?php echo $qs["coupe"]; ?></p>
+                            <p>controle : <span style=" font-weight: normal;"><?php echo $qs["controle"]; ?></p>
+                            <p>ecart: <span style=" font-weight: normal;"><?php echo $qs["ecart"]; ?> </p>
+                        </div>
+                        <?php
+                                }
+
+                                ?>
+                    </div>
+                    <?php
+                        }
+                        ?>
+
+                </div>
+
+
+            </div>
+            <?php
+            }
+            ?>
+
+        </div>
+
+
+
+    </div>
+    </div>
+
     </div>
 
 
 </body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
 body {
@@ -55,6 +208,21 @@ body {
     background-color: #f8f9fa;
     margin: 0;
 }
+
+.commande {
+    border: 1px solid gray;
+    border-radius: 10px;
+    margin: 5px;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.commande>.section1 {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+}
+
 
 .wrapper {
     display: flex;

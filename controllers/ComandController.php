@@ -32,7 +32,7 @@ class ComandController
         $database = new Dbconnexion();
         $conn = $database->getConnection();
 
-        $sql = "SELECT * FROM commande where comande_ref = :commandid";
+        $sql = "SELECT * FROM commande where comande_ref = :commandid order by date_env DESC";
         $stm = $conn->prepare($sql);
         $stm->bindParam(":commandid", $commandId);
 
